@@ -53,6 +53,7 @@ export default function RootLayout({ children, params }) {
     return (
       <html lang={locale} suppressHydrationWarning>
         <head>
+          <meta name="google-adsense-account" content="ca-pub-9756036541068145">
             <GoogleAdsense />
             <GoogleAnalytics />
         </head>
