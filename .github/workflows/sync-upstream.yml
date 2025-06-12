@@ -1,0 +1,33 @@
+# 工作流名称
+name: Sync Upstream
+
+# 触发条件
+on:
+  # 1. 定时触发：使用 cron 语法，这里表示每小时执行一次
+  schedule:
+    - cron: '0 * * * *'
+  # 2. 手动触发：允许你在 Actions 页面手动运行此工作流
+  workflow_dispatch:
+
+# 任务
+jobs:
+  sync:
+    runs-on: ubuntu-latest # 使用最新的 Ubuntu 运行环境
+    steps:
+      # 使用一个社区优化的 Action 来简化同步操作
+      - name: Sync Fork
+        uses: tencentyun/sync-fork@main
+        with:
+          # 上游仓库地址 (必填)
+          # 我已经为你填写了正确的仓库
+          upstream_repository: 'ezshine/twitterxdownload' 
+          
+          # 上游仓库的分支 (必填)
+          # 请确认上游仓库的主分支是 'main' 还是 'master'
+          upstream_branch: 'main' 
+          
+          # 你自己 Fork 的仓库中要被同步的分支 (必填)
+          target_branch: 'main' 
+          
+          # GitHub 会自动提供这个 Token，无需更改
+          github_token: ${{ secrets.GITHUB_TOKEN }}
