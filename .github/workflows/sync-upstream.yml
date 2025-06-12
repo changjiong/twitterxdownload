@@ -1,0 +1,42 @@
+name: Sync Upstream
+
+# Grant write permissions to the workflow for pushing changes
+permissions:
+  contents: write
+
+on:
+  schedule:
+    # Runs automatically every 6 hours. You can change the '*/6' to your liking.
+    - cron: '0 * * * *'
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  sync:
+    name: Sync Fork with Upstream
+    runs-on: ubuntu-latest
+    # This check ensures the workflow only runs on a forked repository
+    if: ${{ github.event.repository.fork }}
+
+    steps:
+      # This step checks out a copy of your fork.
+      - name: Checkout fork
+        uses: actions/checkout@v4
+
+      # This is the key step that performs the synchronization.
+      - name: Sync upstream changes
+        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
+        with:
+          upstream_sync_repo: ezshine/twitterxdownload  
+          upstream_sync_branch: main
+          target_sync_branch: main
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Sync check
+        if: failure()
+        uses: actions-cool/issues-helper@v3
+        with:
+          actions: 'create-issue'
+          title: '🚨 同步失败 | Sync Fail'
+          labels: '🚨 Sync Fail'
+          body: |
+            Due to a change in the workflow file of the upstream repository, GitHub has automatically suspended the scheduled automatic update. You need to manually sync your fork.
