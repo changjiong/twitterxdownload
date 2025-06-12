@@ -31,7 +31,6 @@ jobs:
           upstream_sync_branch: main          
           target_sync_branch: main          
           github_token: ${{ secrets.GITHUB_TOKEN }}   
-		  
       - name: Sync check
         if: failure()
         uses: actions-cool/issues-helper@v3
