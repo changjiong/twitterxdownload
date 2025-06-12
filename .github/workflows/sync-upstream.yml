@@ -27,17 +27,10 @@ jobs:
       - name: Sync upstream changes
         uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
         with:
-          # REQUIRED: The repository to sync from.
-          upstream_sync_repo: ezshine/twitterxdownload
-          
-          # The branch to pull from the upstream repository (usually 'main' or 'master').
-          upstream_sync_branch: main
-          
-          # The branch in your fork to push the changes to.
-          target_sync_branch: main
-          
-          # The token used to push to your fork. The default GITHUB_TOKEN is sufficient.
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          upstream_sync_repo: ezshine/twitterxdownload          
+          upstream_sync_branch: main          
+          target_sync_branch: main          
+          github_token: ${{ secrets.GITHUB_TOKEN }}   
 		  
       - name: Sync check
         if: failure()
