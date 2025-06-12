@@ -1,33 +1,50 @@
-# 工作流名称
 name: Sync Upstream
 
-# 触发条件
+# Grant write permissions to the workflow for pushing changes
+permissions:
+  contents: write
+
 on:
-  # 1. 定时触发：使用 cron 语法，这里表示每小时执行一次
   schedule:
+    # Runs automatically every 6 hours. You can change the '*/6' to your liking.
     - cron: '0 * * * *'
-  # 2. 手动触发：允许你在 Actions 页面手动运行此工作流
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# 任务
 jobs:
   sync:
-    runs-on: ubuntu-latest # 使用最新的 Ubuntu 运行环境
+    name: Sync Fork with Upstream
+    runs-on: ubuntu-latest
+    # This check ensures the workflow only runs on a forked repository
+    if: ${{ github.event.repository.fork }}
+
     steps:
-      # 使用一个社区优化的 Action 来简化同步操作
-      - name: Sync Fork
-        uses: tencentyun/sync-fork@main
+      # This step checks out a copy of your fork.
+      - name: Checkout fork
+        uses: actions/checkout@v4
+
+      # This is the key step that performs the synchronization.
+      - name: Sync upstream changes
+        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
         with:
-          # 上游仓库地址 (必填)
-          # 我已经为你填写了正确的仓库
-          upstream_repository: 'ezshine/twitterxdownload' 
+          # REQUIRED: The repository to sync from.
+          upstream_sync_repo: ezshine/twitterxdownload
           
-          # 上游仓库的分支 (必填)
-          # 请确认上游仓库的主分支是 'main' 还是 'master'
-          upstream_branch: 'main' 
+          # The branch to pull from the upstream repository (usually 'main' or 'master').
+          upstream_sync_branch: main
           
-          # 你自己 Fork 的仓库中要被同步的分支 (必填)
-          target_branch: 'main' 
+          # The branch in your fork to push the changes to.
+          target_sync_branch: main
           
-          # GitHub 会自动提供这个 Token，无需更改
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # The token used to push to your fork. The default GITHUB_TOKEN is sufficient.
+          target_repo_token: ${{ secrets.GITHUB_TOKEN }}
+		  
+      - name: Sync check
+        if: failure()
+        uses: actions-cool/issues-helper@v3
+        with:
+          actions: 'create-issue'
+          title: '🚨 同步失败 | Sync Fail'
+          labels: '🚨 Sync Fail'
+          body: |
+            Due to a change in the workflow file of the upstream repository, GitHub has automatically suspended the scheduled automatic update. You need to manually sync your fork.
